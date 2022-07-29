@@ -1,3 +1,32 @@
+package templates
+
+import "sigs.k8s.io/kubebuilder/v3/pkg/machinery"
+
+var _ machinery.Template = &Makefile{}
+
+type Makefile struct {
+	machinery.TemplateMixin
+	machinery.ComponentConfigMixin
+
+	// TODO mbrauer - IMAGE_REGISTRY
+	// TODO mbrauer - IMAGE_REGISTRY_PROJECT
+	// TODO mbrauer - CONTROLLER_IMAGE
+	// TODO mbrauer - PACKAGE_IMAGE
+	// TODO mbrauer - PACKAGE_REPOSITORY_IMAGE
+}
+
+func (m *Makefile) SetTemplateDefaults() error {
+	if m.Path == "" {
+		m.Path = "Makefile"
+	}
+
+	m.TemplateBody = makefileTemplate
+	m.IfExistsAction = machinery.Error
+
+	return nil
+}
+
+const makefileTemplate = `
 # ----------------
 # This is the Makefile. It exposes all the project's affordances.
 #
@@ -58,3 +87,4 @@ test: ## Run unit tests
 .PHONY: e2e
 e2e: ## Run E2E tests
 	$(GINKGO) $(GINKGO_FLAGS) e2e
+`
