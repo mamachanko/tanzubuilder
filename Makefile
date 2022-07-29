@@ -39,7 +39,22 @@ SHELL := bash
 MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
 
+GINKGO := go run github.com/onsi/ginkgo/v2/ginkgo
+GINKGO_FLAGS := --keep-going -v -r
+ifeq ($(CI),true)
+# On CI we run Ginkgo with all the recommended flags
+# See https://onsi.github.io/ginkgo/#recommended-continuous-integration-configuration
+GINKGO_FLAGS := $(GINKGO_FLAGS) --randomize-all --randomize-suites --fail-on-pending --race --trace --json-report=report.json
+endif
+
 .PHONY: help
 help: ## Describe all make targets (default)
 	@./Makefile_help.awk $(MAKEFILE_LIST)
 
+.PHONY: test
+test:
+	$(GINKGO) $(GINKGO_FLAGS) --skip-package e2e
+
+.PHONY: e2e
+e2e:
+	$(GINKGO) $(GINKGO_FLAGS) e2e
